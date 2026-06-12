@@ -1,9 +1,7 @@
 """Report generation.
 
-NOTE (Phase 0): the "STATISTICAL INTEGRITY" block below is hardcoded prose
-carried over from quantum_alpha_v5.py and several of its claims are NOT yet
-true of this codebase (look-ahead .info features still present until Phase 1,
-broken CV until Phase 2). Phase 4 replaces it with measured pass/fail output.
+NOTE: the integrity block is a placeholder until Phase 4 generates each claim
+from measured test outcomes (the CV remains known-broken until Phase 2).
 """
 
 from datetime import datetime

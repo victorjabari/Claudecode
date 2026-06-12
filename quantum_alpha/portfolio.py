@@ -169,7 +169,7 @@ class RiskScorer:
         self.config = config
 
     def score(
-        self, pred_info: Dict, features: pd.DataFrame, info: Dict,
+        self, pred_info: Dict, features: pd.DataFrame,
     ) -> Dict[str, float]:
         er = pred_info["expected_return"]
         conf = pred_info["confidence"]
@@ -188,24 +188,13 @@ class RiskScorer:
             float(features[mom_cols].iloc[-1].mean()) if mom_cols else 0.0
         )
 
-        # Fundamental quality from .info snapshots — Phase 1 removes this
-        # (point-in-time-today data must not drive historical-model scoring).
-        fund_score = 0
-        if (info.get("returnOnEquity") or 0) > 0.15:
-            fund_score += 1
-        if (info.get("profitMargins") or 0) > 0.10:
-            fund_score += 1
-        if (info.get("revenueGrowth") or 0) > 0.10:
-            fund_score += 1
-        if (info.get("debtToEquity") or 0) < 100:
-            fund_score += 1
-        scores["fundamental_quality"] = fund_score / 4.0
-
+        # Composite weights are the pre-Phase-1 weights renormalised after
+        # dropping the .info-based "fundamental quality" leg (point-in-time-
+        # today snapshots must not drive scoring).
         scores["composite"] = (
-            0.35 * scores["conf_adj_return"]
-            + 0.25 * scores["sharpe_est"] / 3.0
-            + 0.15 * scores["momentum_quality"]
-            + 0.25 * scores["fundamental_quality"]
+            0.45 * scores["conf_adj_return"]
+            + 0.35 * scores["sharpe_est"] / 3.0
+            + 0.20 * scores["momentum_quality"]
         )
         return scores
 
@@ -239,7 +228,7 @@ class SignalGenerator:
                 continue
 
             pred = batch_preds[ticker]
-            scores = self.scorer.score(pred, feat, data.info)
+            scores = self.scorer.score(pred, feat)
 
             conviction = classify_conviction(
                 pred["expected_return"], pred["ci_low"], pred["ci_high"],

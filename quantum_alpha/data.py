@@ -27,27 +27,15 @@ log = logging.getLogger("quantum_alpha.data")
 
 T = TypeVar("T")
 
-# The .info fields the pipeline currently consumes. Only the first four are
-# legitimate (universe filters + report metadata). The rest feed the
-# .info-derived feature columns and RiskScorer — they are point-in-time TODAY
-# snapshots and are scheduled for deletion in Phase 1 (CLAUDE.md invariant 1).
+# The only .info fields the pipeline consumes: universe filters (marketCap,
+# averageVolume) and report metadata (sector, shortName). Snapshot
+# fundamentals are point-in-time TODAY and are FORBIDDEN as features
+# (CLAUDE.md invariants 1 and 2) — they may never reach the feature matrix.
 INFO_FIELDS = [
     "marketCap",
     "averageVolume",
     "sector",
     "shortName",
-    # --- Phase 1 removes everything below this line ---
-    "trailingPE",
-    "forwardPE",
-    "priceToBook",
-    "revenueGrowth",
-    "earningsGrowth",
-    "profitMargins",
-    "returnOnEquity",
-    "debtToEquity",
-    "beta",
-    "dividendYield",
-    "pegRatio",
 ]
 
 
