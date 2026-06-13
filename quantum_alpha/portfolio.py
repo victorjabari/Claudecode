@@ -208,10 +208,12 @@ class SignalGenerator:
         self.optimizer = PortfolioOptimizer(config)
         self._last_features: Dict[str, pd.DataFrame] = {}
 
-    def train(self, stock_data: Dict[str, StockData], cutoff_date: datetime) -> None:
+    def train(self, stock_data: Dict[str, StockData], cutoff_date: datetime,
+              label_shuffler=None) -> None:
         self._last_features = self.feature_engine.compute_all(stock_data)
         all_prices = {t: sd.prices for t, sd in stock_data.items()}
-        self.predictor.fit(self._last_features, all_prices, cutoff_date)
+        self.predictor.fit(self._last_features, all_prices, cutoff_date,
+                           label_shuffler=label_shuffler)
 
     def generate_signals(self, stock_data: Dict[str, StockData]) -> List[Signal]:
         if not self._last_features:

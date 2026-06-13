@@ -46,6 +46,8 @@ class Config:
     # --- Backtest ---
     rebalance_frequency_days: int = 21
     backtest_retrain_frequency: int = 63
+    transaction_cost_bps: float = 10.0       # per side, on traded notional
+    trading_days_per_year: int = 252
 
     # --- ML ---
     n_cv_folds: int = 5

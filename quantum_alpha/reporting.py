@@ -124,17 +124,66 @@ def report(
 
     if "error" not in bt_results:
         hr()
-        lines.append("BACKTEST (walk-forward, quarterly retraining, REAL data)")
+        lines.append("BACKTEST — NET OF COSTS, WITH BENCHMARKS ON IDENTICAL DATES")
         hr("-")
-        lines.append(f"  Initial Capital:   ${bt_results['initial_capital']:>12,.0f}")
-        lines.append(f"  Final Value:       ${bt_results['final_value']:>12,.0f}")
-        lines.append(f"  Total Return:      {bt_results['total_return']*100:>+11.1f}%")
-        lines.append(f"  CAGR:              {bt_results['cagr']*100:>+11.1f}%")
-        lines.append(f"  Volatility:        {bt_results['volatility']*100:>11.1f}%")
-        lines.append(f"  Sharpe Ratio:      {bt_results['sharpe_ratio']:>11.2f}")
-        lines.append(f"  Max Drawdown:      {bt_results['max_drawdown']*100:>11.1f}%")
-        lines.append(f"  Trades:            {bt_results['num_trades']:>11}")
-        lines.append(f"  Rebalances:        {bt_results['num_rebalances']:>11}")
+        lines.append(
+            f"  Window: {bt_results['start_date'].date()} → "
+            f"{bt_results['end_date'].date()}   "
+            f"({bt_results['num_rebalances']} rebalances, every "
+            f"{bt_results['rebalance_frequency_days']} trading days = "
+            f"{bt_results['periods_per_year']:.0f} periods/yr)"
+        )
+        lines.append(
+            f"  Costs: {bt_results['cost_bps_per_side']:.0f} bps per side on "
+            f"traded notional, applied to strategy AND benchmarks"
+        )
+        blank()
+
+        benchmarks = bt_results.get("benchmarks", {})
+        cols = [("Strategy", bt_results)]
+        for name in ("SPY", "equal_weight"):
+            bm = benchmarks.get(name, {})
+            label = "SPY" if name == "SPY" else "Equal-Weight"
+            if bm and "error" not in bm:
+                cols.append((label, bm))
+            else:
+                lines.append(f"  [{label} benchmark unavailable: "
+                             f"{bm.get('error', 'missing')}]")
+
+        header = f"  {'':<22}" + "".join(f"{label:>14}" for label, _ in cols)
+        lines.append(header)
+        hr("-")
+
+        def row(label, key, fmt):
+            cells = "".join(
+                f"{fmt(metrics[key]):>14}" if key in metrics else f"{'—':>14}"
+                for _, metrics in cols
+            )
+            lines.append(f"  {label:<22}{cells}")
+
+        pct = lambda v: f"{v*100:+.1f}%"
+        pos_pct = lambda v: f"{v*100:.1f}%"
+        num = lambda v: f"{v:.2f}"
+        usd = lambda v: f"${v:,.0f}"
+
+        row("Final Value", "final_value", usd)
+        row("Total Return", "total_return", pct)
+        row("CAGR", "cagr", pct)
+        row("Volatility (ann.)", "volatility", pos_pct)
+        row("Sharpe Ratio", "sharpe_ratio", num)
+        row("Max Drawdown", "max_drawdown", pct)
+        row("Turnover (ann., 2-side)", "turnover_annualized", pos_pct)
+        row("Total Costs", "total_costs", usd)
+        blank()
+
+        for label, metrics in cols[1:]:
+            lines.append(
+                f"  Active CAGR vs {label:<13}: "
+                f"{(bt_results['cagr'] - metrics['cagr'])*100:+.2f}%"
+            )
+        if bt_results.get("oof_r2") is not None:
+            lines.append(f"  Model OOF R² (last retrain, purged CV): "
+                         f"{bt_results['oof_r2']:.4f}")
     else:
         lines.append(f"Backtest: {bt_results['error']}")
     blank()

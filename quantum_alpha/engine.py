@@ -72,11 +72,15 @@ class TradingEngine:
         signals = self.gen.generate_signals(data)
         return self.gen.select_portfolio(signals, data)
 
-    def backtest(self, years: int = 2) -> Dict:
+    def backtest(self, years: int = 2, label_shuffler=None) -> Dict:
         end = datetime.now()
         start = end - timedelta(days=years * 365)
         data = self.load_data()
-        return self.bt.run(data, start, end)
+        spy_prices = self.dm.provider.fetch_prices("SPY")
+        if spy_prices is None:
+            log.warning("SPY fetch failed — backtest will lack the SPY benchmark")
+        return self.bt.run(data, start, end, spy_prices=spy_prices,
+                           label_shuffler=label_shuffler)
 
 
 def main(
