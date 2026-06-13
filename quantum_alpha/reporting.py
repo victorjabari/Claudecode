@@ -1,13 +1,16 @@
 """Report generation.
 
-NOTE: the integrity block is a placeholder until Phase 4 generates each claim
-from measured test outcomes (the CV remains known-broken until Phase 2).
+The integrity section is generated from measured IntegrityChecks
+(quantum_alpha.integrity), never hardcoded prose (CLAUDE.md invariant 7). When
+the falsification gate has not passed, the backtest section is withheld and
+flagged as not meaningful (invariant 6).
 """
 
 from datetime import datetime
 from typing import Dict, List, Optional
 
 from .config import Config
+from .integrity import IntegrityCheck, gate_passed
 
 
 def report(
@@ -16,7 +19,11 @@ def report(
     bt_results: Dict,
     feature_importances: Optional[Dict[str, float]],
     config: Config,
+    integrity_checks: Optional[List[IntegrityCheck]] = None,
 ) -> str:
+    integrity_checks = integrity_checks or []
+    gate_ok = gate_passed(integrity_checks) if integrity_checks else False
+    have_gate = any(c.gating for c in integrity_checks)
     lines = []
 
     def hr(char="="):
@@ -122,9 +129,19 @@ def report(
             lines.append(f"  {s:<20} {w*100:.1f}%")
     blank()
 
-    if "error" not in bt_results:
+    if "error" not in bt_results and have_gate and not gate_ok:
+        hr()
+        lines.append("BACKTEST — WITHHELD")
+        hr("-")
+        lines.append("  The falsification gate did NOT pass, so backtest results")
+        lines.append("  are not treated as meaningful and are withheld here. See")
+        lines.append("  the STATISTICAL INTEGRITY section for the failing check.")
+        blank()
+    elif "error" not in bt_results:
         hr()
         lines.append("BACKTEST — NET OF COSTS, WITH BENCHMARKS ON IDENTICAL DATES")
+        if have_gate:
+            lines.append("  (falsification gate: PASSED)")
         hr("-")
         lines.append(
             f"  Window: {bt_results['start_date'].date()} → "
@@ -198,15 +215,30 @@ def report(
             lines.append(f"  {name:<25} {imp:.4f}  {bar}")
     blank()
 
-    # Hardcoded prose — replaced with measured pass/fail output in Phase 4.
+    # Integrity section — every line is a measured check (invariant 7).
     hr()
-    lines.append("STATISTICAL INTEGRITY & HONEST DISCLOSURE")
+    lines.append("STATISTICAL INTEGRITY — MEASURED, NOT ASSERTED")
     hr("-")
-    lines.append("  NOTE: this block is hardcoded prose pending Phase 4; until the")
-    lines.append("  falsification suite lands, treat every claim here as UNVERIFIED.")
-    lines.append("  - Data source: Yahoo Finance (real market data)")
-    lines.append("  - Universe = current S&P constituents → SURVIVORSHIP-BIASED")
-    lines.append("  - Past backtest performance does NOT guarantee future returns")
+    if not integrity_checks:
+        lines.append("  No integrity checks were run for this report.")
+    else:
+        n_pass = sum(c.passed for c in integrity_checks)
+        gate_line = (
+            "GATE PASSED" if gate_ok else
+            ("GATE FAILED — results withheld" if have_gate else "GATE NOT RUN")
+        )
+        lines.append(f"  Checks passed: {n_pass}/{len(integrity_checks)}    "
+                     f"Falsification {gate_line}")
+        blank()
+        for c in integrity_checks:
+            flag = "[GATE]" if c.gating else "      "
+            lines.append(f"  {flag} {c.status:<4} {c.name}")
+            lines.append(f"              {c.measure}")
+            if c.detail:
+                lines.append(f"              {c.detail}")
+    blank()
+    lines.append("  Data source: Yahoo Finance (real market data). Past backtest")
+    lines.append("  performance does NOT guarantee future returns.")
     hr()
 
     return "\n".join(lines)

@@ -21,20 +21,28 @@ def make_ohlcv(
 ) -> pd.DataFrame:
     """Synthetic OHLCV frame shaped like the data layer's output.
 
-    ``momentum`` > 0 plants a genuine, correctly-aligned signal: today's drift
-    leans on the trailing 21-day mean return, so past-return features carry
-    real information about forward returns.
+    ``momentum`` > 0 plants a genuine, correctly-aligned and BOUNDED signal: a
+    stationary AR(1) latent factor (half-life ~14 days, so it persists across
+    the 21-day horizon) adds a persistent component to daily returns. The
+    trailing-return features pick the factor up, and because it persists, the
+    forward 21-day return is genuinely (weakly) predictable — without the
+    explosive feedback a return-on-return loop would create.
     """
     rng = np.random.default_rng(seed)
     index = pd.bdate_range(start, periods=n_days)
 
-    rets = np.zeros(n_days)
-    shocks = rng.normal(mu, sigma, n_days)
-    for t in range(n_days):
-        drift = 0.0
-        if momentum > 0 and t >= 21:
-            drift = momentum * rets[t - 21:t].mean()
-        rets[t] = drift + shocks[t]
+    phi = 0.95
+    factor_std = 1.0 / np.sqrt(1.0 - phi ** 2)
+    factor = np.zeros(n_days)
+    for t in range(1, n_days):
+        factor[t] = phi * factor[t - 1] + rng.normal(0, 1)
+
+    shocks = rng.normal(mu, sigma, n_days)   # already include the drift mu
+    persistent = np.zeros(n_days)
+    if momentum > 0:
+        # Yesterday's factor (known at t-1) drives a fraction of today's vol.
+        persistent[1:] = momentum * sigma * 0.1 * (factor[:-1] / factor_std)
+    rets = shocks + persistent
 
     close = start_price * np.exp(np.cumsum(rets))
     open_ = close * np.exp(rng.normal(0, 0.003, n_days))

@@ -9,6 +9,7 @@ from typing import Dict, List, Optional
 from .backtest import Backtester
 from .config import N_CORES, WORKER_CORES, Config
 from .data import DataManager, StockData
+from .integrity import build_integrity_report
 from .portfolio import SignalGenerator
 from .reporting import report
 
@@ -24,6 +25,7 @@ class TradingEngine:
         self.bt = Backtester(self.config)
         self.custom_tickers = custom_tickers
         self._stock_data: Optional[Dict[str, StockData]] = None
+        self._train_cutoff: Optional[datetime] = None
 
     def load_data(self) -> Dict[str, StockData]:
         if self._stock_data is None:
@@ -34,6 +36,7 @@ class TradingEngine:
     def train(self) -> None:
         data = self.load_data()
         cutoff = datetime.now() - timedelta(days=self.config.prediction_horizon_days)
+        self._train_cutoff = cutoff
         self.gen.train(data, cutoff_date=cutoff)
 
     def scan(self) -> List[Dict]:
@@ -87,6 +90,7 @@ def main(
     config: Optional[Config] = None,
     custom_tickers: Optional[List[str]] = None,
     skip_backtest: bool = False,
+    run_falsification: bool = True,
 ) -> Dict:
     """Run the full pipeline: fetch → train → scan → portfolio → backtest."""
     t_start = time.perf_counter()
@@ -125,8 +129,21 @@ def main(
         print("\nStep 5: Backtest skipped (--no-backtest)")
         bt_results = {"error": "Skipped by user"}
 
+    print("\nStep 6: Falsification suite + measured integrity report...")
+    print("-" * 50)
+    integrity_checks = build_integrity_report(
+        config=config,
+        features=engine.gen._last_features,
+        all_prices={t: sd.prices for t, sd in engine._stock_data.items()},
+        cutoff_date=engine._train_cutoff,
+        cv_fold_summary=engine.gen.predictor.cv_fold_summary,
+        bt_results=bt_results,
+        run_permutation=run_falsification,
+        run_feature_lag=run_falsification,
+    )
+
     fi = engine.gen.predictor.get_feature_importances()
-    full_report = report(opps, portfolio, bt_results, fi, config)
+    full_report = report(opps, portfolio, bt_results, fi, config, integrity_checks)
     print("\n" + full_report)
 
     elapsed = time.perf_counter() - t_start
@@ -137,6 +154,7 @@ def main(
         "portfolio": portfolio,
         "backtest": bt_results,
         "feature_importances": fi,
+        "integrity_checks": integrity_checks,
     }
 
 
@@ -155,6 +173,10 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--cache-dir", type=str, default=None,
         help="Parquet cache directory (default: data/cache)")
+    parser.add_argument(
+        "--no-falsification", action="store_true",
+        help="Skip the permutation + feature-lag refits (the falsification "
+             "gate then reports NOT RUN and backtest output is withheld)")
     return parser
 
 
@@ -187,4 +209,5 @@ def cli(argv: Optional[List[str]] = None) -> Dict:
         tickers = [t.strip() for t in args.tickers.split(",")]
 
     return main(config=config, custom_tickers=tickers,
-                skip_backtest=args.no_backtest)
+                skip_backtest=args.no_backtest,
+                run_falsification=not args.no_falsification)
