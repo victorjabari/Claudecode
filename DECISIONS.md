@@ -23,31 +23,48 @@ proves it from measurements rather than asserting it in prose:
   date collapses OOF R² to ≈ 0; a failed gate withholds the backtest output.
 
 ## What the honest numbers say
-The corrected pipeline shows **no exploitable edge**, exactly as CLAUDE.md
-anticipated. Representative measured results:
+The corrected pipeline shows **no exploitable, trustworthy edge** — exactly as
+CLAUDE.md anticipated. The two runs below look opposite on raw return, and that
+contradiction is the whole point: raw return over a single one-year window is
+noise, and every rigorous measure agrees there is no signal.
 
-| Run (net of 10 bps/side) | Strategy CAGR | SPY | Equal-Weight | OOF R² |
-|---|---|---|---|---|
-| 20-ticker, 1y window | −13.2% | +25.8% | +46.1% | ~0.002–0.003 |
+| Run (net of 10 bps/side, 12 monthly rebalances) | Strat CAGR | SPY | Equal-Weight | Strat vol | Strat Sharpe | EW Sharpe | OOF R² | perm R² |
+|---|---|---|---|---|---|---|---|---|
+| 20-ticker, 1y | −13.2% | +25.8% | +46.1% | 9.4% | −1.87 | 4.33 | ~0.002 | — |
+| 49-name S&P, 1y | **+43.5%** | +24.8% | +25.4% | **52.1%** | **0.75** | 2.46 | ~0.009–0.014 | 0.005 |
 
-- Out-of-fold R² sits in the 0.00–0.005 band — statistically indistinguishable
-  from zero for monthly equity returns. The label-permutation control lands in
-  the same band (real 0.0018 vs permuted 0.0140, both < the 0.02 gate), which
-  is the signature of **no edge and no leakage** at once.
-- The strategy underperforms equal-weight badly, and ~380%/yr turnover means
-  costs actively erode it. The optimizer is concentrating into a Sharpe-chasing
-  subset whose realized returns trail simply holding the universe.
-- Conviction tiers do not earn their labels out of sample: HIGH/MEDIUM rarely
-  populate (the calibrated 80% interval is wide, so `ci_low > 0` is rare), and
-  the realized-return ordering across the actionable tiers does not hold. The
-  audit reports this rather than hiding it.
+Read these together, not apart:
+
+- **Out-of-fold R² is ≈ 0 in both runs** (0.002–0.014), statistically
+  indistinguishable from zero for monthly equity returns. On the S&P run the
+  label-permutation control scored 0.005 against a real 0.009 — both under the
+  0.02 gate, both noise. That is the signature of **no edge and no leakage at
+  once**: shuffling the labels barely changes anything because the features
+  were never predicting the labels.
+- **The S&P run's +18% "active return" is not edge — it is variance.** The
+  strategy ran at **52% annualized volatility** (vs ~9% for the benchmarks),
+  a **−27% max drawdown** (vs −4%), and a **Sharpe of 0.75 against the
+  equal-weight's 2.46**. Risk-adjusted, it lost decisively. A 12-observation
+  window from a high-variance, concentrated portfolio will sometimes print a
+  big number; the OOF R² and the permutation control tell you not to bank on it.
+- **Turnover ~380%/yr** means costs are a real, persistent drag in both runs;
+  the optimizer churns into a concentrated Sharpe-chasing subset.
+- **Conviction tiers do not reliably earn their labels.** HIGH essentially
+  never populates (the calibrated 80% interval is wide, so `ci_low > 0` is
+  rare); on the S&P run MEDIUM (n=42) edged LOW, but the AVOID tier realized
+  *positive* (+1.9%), which is itself evidence the tiers are not separating
+  outcomes. The audit reports the populated ordering plainly rather than
+  dressing it up.
 
 ## Decision
-**Keep Quantum Alpha as a methodology lab, not a signal to trade.** The
-net-of-cost edge versus equal-weight is negative, and there is no honest
-parameter change that would fix that without reintroducing leakage — which the
-prime directive forbids. This is the success condition of the project: a
-pipeline whose numbers can be trusted, even though they show no edge.
+**Keep Quantum Alpha as a methodology lab, not a signal to trade.** Out-of-fold
+R² is ≈ 0 and the permutation control sits in the same band, so there is no
+statistical signal to act on; the one window that printed a large positive
+active return did so at 52% volatility and a sub-benchmark Sharpe — variance,
+not edge. No honest parameter change would manufacture a trustworthy edge
+without reintroducing leakage, which the prime directive forbids. This *is* the
+success condition of the project: a pipeline whose numbers can be trusted,
+even though — and especially when — they show no edge.
 
 Real-money effort should move to the **portfolio/risk layer**, where the
 expected value per hour is highest and which does not depend on this signal
@@ -66,5 +83,8 @@ having an edge:
 The universe is today's S&P survivors (yfinance has no delisted tickers), so
 every absolute number is survivorship-biased upward. The equal-weight
 benchmark shares the same survivor set, which is what makes the
-strategy-vs-equal-weight comparison the one to trust — and by that comparison,
-the strategy has no edge.
+strategy-vs-equal-weight comparison the one to trust. On a single window the
+strategy can beat it on raw return, but only by taking far more risk
+(52% vol, −27% drawdown) for a worse Sharpe — and with OOF R² ≈ 0 and the
+permutation control in the same band, there is no signal to expect that to
+repeat.

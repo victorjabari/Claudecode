@@ -1,0 +1,186 @@
+{
+  "generated": "2026-06-13T03:50:06.363177",
+  "config": {
+    "prediction_horizon_days": 21,
+    "rebalance_frequency_days": 21,
+    "transaction_cost_bps": 10.0,
+    "max_universe_size": 50,
+    "random_seed": 42
+  },
+  "universe_size": 49,
+  "universe": [
+    "A",
+    "AAPL",
+    "ABBV",
+    "ABNB",
+    "ABT",
+    "ACGL",
+    "ACN",
+    "ADBE",
+    "ADI",
+    "ADM",
+    "AEE",
+    "AEP",
+    "AES",
+    "AFL",
+    "AIG",
+    "AJG",
+    "AKAM",
+    "ALB",
+    "ALGN",
+    "ALL",
+    "ALLE",
+    "AMAT",
+    "AMCR",
+    "AMD",
+    "AME",
+    "AMGN",
+    "AMP",
+    "AMT",
+    "AMZN",
+    "ANET",
+    "AON",
+    "AOS",
+    "APA",
+    "APD",
+    "APH",
+    "APO",
+    "APP",
+    "APTV",
+    "ARE",
+    "ARES",
+    "ATO",
+    "AWK",
+    "AXP",
+    "GOOG",
+    "GOOGL",
+    "LNT",
+    "MMM",
+    "MO",
+    "T"
+  ],
+  "falsification_gate_passed": true,
+  "integrity": [
+    {
+      "name": "No look-ahead (features at t ignore rows after t)",
+      "passed": true,
+      "gating": false,
+      "measure": "max|\u0394|\u2264t = 0.00e+00",
+      "detail": "perturbed all rows after 2025-07-22; compared 255 feature rows at \u2264 t"
+    },
+    {
+      "name": "No ticker fingerprints (no static per-ticker columns)",
+      "passed": true,
+      "gating": false,
+      "measure": "0 static cols across 49 tickers",
+      "detail": "static columns: none"
+    },
+    {
+      "name": "Temporal CV with embargo (21 trading days)",
+      "passed": true,
+      "gating": false,
+      "measure": "min gap 22 > embargo 21 across 5 folds",
+      "detail": "every fold satisfies max(train)+embargo < min(val)"
+    },
+    {
+      "name": "Costs applied (bps/side on traded notional)",
+      "passed": true,
+      "gating": false,
+      "measure": "10 bps/side, strategy $5,022 / turnover 381%/yr, EW $1,851",
+      "detail": "transaction costs charged on every traded dollar"
+    },
+    {
+      "name": "Benchmarks on identical dates (SPY + equal-weight)",
+      "passed": true,
+      "gating": false,
+      "measure": "present: equal_weight, SPY",
+      "detail": "equal-weight is the apples-to-apples survivor benchmark; SPY available"
+    },
+    {
+      "name": "Falsification gate: permuted-label OOF R\u00b2 \u2248 0",
+      "passed": true,
+      "gating": true,
+      "measure": "perm R\u00b2 max +0.0050 (mean +0.0050) vs real 0.0088, tol 0.02",
+      "detail": "1 permutation round(s); shuffled labels must not predict"
+    },
+    {
+      "name": "Feature-lag test (extra 1-day lag must not improve R\u00b2)",
+      "passed": true,
+      "gating": false,
+      "measure": "\u0394R\u00b2 (lagged \u2212 real) = +0.0007, tol 0.02",
+      "detail": "real +0.0088 \u2192 lagged +0.0094; improvement implies the original alignment was leaking"
+    },
+    {
+      "name": "Survivorship bias disclosed",
+      "passed": true,
+      "gating": false,
+      "measure": "current S&P constituents only",
+      "detail": "yfinance has no delisted tickers; the universe is today's survivors. The equal-weight benchmark shares this survivor set, so the strategy-vs-EW comparison nets the bias out partially."
+    }
+  ],
+  "backtest": {
+    "window": [
+      "2025-06-16T00:00:00",
+      "2026-06-12T00:00:00"
+    ],
+    "num_rebalances": 12,
+    "strategy": {
+      "total_return": 0.42862990391406264,
+      "cagr": 0.4346421416581121,
+      "volatility": 0.521072002677174,
+      "sharpe_ratio": 0.7477702499005915,
+      "max_drawdown": -0.27315098253743153,
+      "turnover_annualized": 3.8147390619120696,
+      "total_costs": 5022.215801156228,
+      "final_value": 1428629.9039140625,
+      "num_trades": 12
+    },
+    "benchmarks": {
+      "equal_weight": {
+        "cagr": 0.25402547317775004,
+        "total_return": 0.25072686639784414,
+        "sharpe_ratio": 2.462646552175181,
+        "max_drawdown": -0.04386247092589435,
+        "active_cagr": 0.18061666848036206
+      },
+      "SPY": {
+        "cagr": 0.24807549423543174,
+        "total_return": 0.2448614272443077,
+        "sharpe_ratio": 2.106261831922815,
+        "max_drawdown": -0.04450766835502795,
+        "active_cagr": 0.18656664742268037
+      }
+    },
+    "oof_r2": 0.014256146464106001
+  },
+  "conviction_audit": {
+    "monotonic": true,
+    "detail": "realized forward return is monotonic across MEDIUM \u2265 LOW",
+    "table": [
+      {
+        "tier": "MEDIUM",
+        "n": 42,
+        "mean_pred": 0.08957731528210156,
+        "mean_realized": 0.11615803964491796,
+        "median_realized": 0.06904876443679997,
+        "hit_rate": 0.5952380952380952
+      },
+      {
+        "tier": "LOW",
+        "n": 17724,
+        "mean_pred": 0.012738063471642573,
+        "mean_realized": 0.012090306486787885,
+        "median_realized": 0.007611077708598479,
+        "hit_rate": 0.5416948770029338
+      },
+      {
+        "tier": "AVOID",
+        "n": 413,
+        "mean_pred": -0.006528041558839366,
+        "mean_realized": 0.018567489618705153,
+        "median_realized": 0.008282646893118972,
+        "hit_rate": 0.5375302663438256
+      }
+    ]
+  }
+}
