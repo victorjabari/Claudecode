@@ -66,14 +66,19 @@ toward zero as leaks close. **That is success, not failure** — see CLAUDE.md.
 - [x] Replace the hardcoded "STATISTICAL INTEGRITY" block: the report now
       generates each claim with its measured pass/fail and the number behind it
 
-## Phase 5 — Re-evaluate and decide
-- [ ] Full run on the capped S&P universe; write the report + metrics to
-      `results/` with a date stamp; commit
-- [ ] Conviction-tier audit: out of sample, do HIGH picks actually beat MEDIUM
-      beat LOW? If the ordering doesn't hold, the tiers are decoration
-- [ ] Decision point: if net-of-cost edge ≈ 0 vs equal-weight (the likely
-      outcome), keep this as the methodology lab it is. Real-money work then
-      shifts to the portfolio layer below — not to squeezing this signal
+## Phase 5 — Re-evaluate and decide  ✅ (commit: Phase 5)
+- [x] Full run on the capped S&P universe (--max-universe N --save-results);
+      report + metrics.json written to `results/<datestamp>/` and committed.
+      (S&P list fetch now sends a browser user-agent; Wikipedia 403s urllib's
+      default UA. Graceful fallback to the curated universe still works.)
+- [x] Conviction-tier audit wired in: replays classify_conviction over the
+      purged OOF predictions and checks HIGH ≥ MEDIUM ≥ LOW in realized return.
+      Out of sample the ordering does NOT hold and HIGH/MEDIUM barely populate
+      — the audit reports the tiers are decoration rather than hiding it.
+- [x] Decision (see DECISIONS.md): net-of-cost edge is negative vs equal-weight,
+      OOF R² ≈ 0 with the permutation control in the same band (no edge AND no
+      leakage). Keep as a methodology lab; real-money work moves to the
+      portfolio/risk layer, not to squeezing this signal.
 
 ## Later / optional (separate branch each)
 - [ ] Cross-sectional long–short quantile evaluation (partially nets out

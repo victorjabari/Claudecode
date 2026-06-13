@@ -194,6 +194,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--cache-dir", type=str, default=None,
         help="Parquet cache directory (default: data/cache)")
     parser.add_argument(
+        "--max-universe", type=int, default=None,
+        help="Cap the universe size (default: Config.max_universe_size=150)")
+    parser.add_argument(
         "--no-falsification", action="store_true",
         help="Skip the permutation + feature-lag refits (the falsification "
              "gate then reports NOT RUN and backtest output is withheld)")
@@ -215,6 +218,8 @@ def config_from_args(args: argparse.Namespace) -> Config:
         overrides["prediction_horizon_days"] = args.horizon
     if getattr(args, "cache_dir", None):
         overrides["cache_dir"] = args.cache_dir
+    if getattr(args, "max_universe", None) is not None:
+        overrides["max_universe_size"] = args.max_universe
     return Config(**overrides)
 
 

@@ -160,8 +160,17 @@ class YFinanceDataProvider:
                 pass
 
         def _fetch() -> List[str]:
+            # Wikipedia 403s urllib's default user-agent, so fetch the HTML
+            # with a browser UA and hand the markup to pd.read_html.
+            import io
+            import urllib.request
             url = "https://en.wikipedia.org/wiki/List_of_S%26P_500_companies"
-            tables = pd.read_html(url)
+            req = urllib.request.Request(
+                url, headers={"User-Agent": "Mozilla/5.0 (quantum-alpha research)"}
+            )
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                html = resp.read().decode("utf-8")
+            tables = pd.read_html(io.StringIO(html))
             return tables[0]["Symbol"].str.replace(".", "-", regex=False).tolist()
 
         try:
