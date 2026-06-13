@@ -6,12 +6,14 @@ import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 
+from .audit import conviction_tier_audit
 from .backtest import Backtester
 from .config import N_CORES, WORKER_CORES, Config
 from .data import DataManager, StockData
 from .integrity import build_integrity_report
 from .portfolio import SignalGenerator
 from .reporting import report
+from .results import write_results
 
 log = logging.getLogger("quantum_alpha.engine")
 
@@ -91,6 +93,7 @@ def main(
     custom_tickers: Optional[List[str]] = None,
     skip_backtest: bool = False,
     run_falsification: bool = True,
+    save_results: bool = False,
 ) -> Dict:
     """Run the full pipeline: fetch → train → scan → portfolio → backtest."""
     t_start = time.perf_counter()
@@ -142,9 +145,24 @@ def main(
         run_feature_lag=run_falsification,
     )
 
+    conviction_audit = conviction_tier_audit(
+        engine.gen.predictor.oof_frame,
+        engine.gen.predictor.calibrated_std,
+    )
+
     fi = engine.gen.predictor.get_feature_importances()
-    full_report = report(opps, portfolio, bt_results, fi, config, integrity_checks)
+    full_report = report(opps, portfolio, bt_results, fi, config,
+                         integrity_checks, conviction_audit)
     print("\n" + full_report)
+
+    results_dir = None
+    if save_results:
+        results_dir = write_results(
+            report_text=full_report, config=config, bt_results=bt_results,
+            integrity_checks=integrity_checks, conviction_audit=conviction_audit,
+            universe=sorted(engine._stock_data.keys()),
+        )
+        print(f"\nResults written to {results_dir}/")
 
     elapsed = time.perf_counter() - t_start
     print(f"\nTotal runtime: {elapsed:.1f}s")
@@ -155,6 +173,8 @@ def main(
         "backtest": bt_results,
         "feature_importances": fi,
         "integrity_checks": integrity_checks,
+        "conviction_audit": conviction_audit,
+        "results_dir": str(results_dir) if results_dir else None,
     }
 
 
@@ -177,6 +197,9 @@ def build_arg_parser() -> argparse.ArgumentParser:
         "--no-falsification", action="store_true",
         help="Skip the permutation + feature-lag refits (the falsification "
              "gate then reports NOT RUN and backtest output is withheld)")
+    parser.add_argument(
+        "--save-results", action="store_true",
+        help="Write the report + metrics.json to results/<datestamp>/")
     return parser
 
 
@@ -210,4 +233,5 @@ def cli(argv: Optional[List[str]] = None) -> Dict:
 
     return main(config=config, custom_tickers=tickers,
                 skip_backtest=args.no_backtest,
-                run_falsification=not args.no_falsification)
+                run_falsification=not args.no_falsification,
+                save_results=args.save_results)

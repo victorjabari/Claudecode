@@ -9,6 +9,7 @@ flagged as not meaningful (invariant 6).
 from datetime import datetime
 from typing import Dict, List, Optional
 
+from .audit import ConvictionAudit
 from .config import Config
 from .integrity import IntegrityCheck, gate_passed
 
@@ -20,6 +21,7 @@ def report(
     feature_importances: Optional[Dict[str, float]],
     config: Config,
     integrity_checks: Optional[List[IntegrityCheck]] = None,
+    conviction_audit: Optional[ConvictionAudit] = None,
 ) -> str:
     integrity_checks = integrity_checks or []
     gate_ok = gate_passed(integrity_checks) if integrity_checks else False
@@ -214,6 +216,26 @@ def report(
             bar = "#" * int(imp * 200)
             lines.append(f"  {name:<25} {imp:.4f}  {bar}")
     blank()
+
+    # Conviction-tier audit (out of sample) ------------------------------
+    if conviction_audit is not None and not conviction_audit.table.empty:
+        hr()
+        lines.append("CONVICTION-TIER AUDIT (out-of-fold realized returns)")
+        verdict = "ORDERING HOLDS" if conviction_audit.monotonic else \
+                  "ORDERING BROKEN — tiers are decoration"
+        lines.append(f"  {verdict}")
+        hr("-")
+        lines.append(f"  {'Tier':<12} {'N':>7} {'MeanPred':>9} "
+                     f"{'MeanReal':>9} {'MedReal':>9} {'Hit%':>6}")
+        hr("-")
+        for tier, r in conviction_audit.table.iterrows():
+            lines.append(
+                f"  {tier:<12} {int(r['n']):>7} "
+                f"{r['mean_pred']*100:>+8.1f}% {r['mean_realized']*100:>+8.1f}% "
+                f"{r['median_realized']*100:>+8.1f}% {r['hit_rate']*100:>5.0f}%"
+            )
+        lines.append(f"  {conviction_audit.detail}")
+        blank()
 
     # Integrity section — every line is a measured check (invariant 7).
     hr()

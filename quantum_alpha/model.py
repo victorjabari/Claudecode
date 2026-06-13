@@ -415,6 +415,13 @@ class ReturnPredictor:
             }
         return results
 
+    @property
+    def calibrated_std(self) -> float:
+        """Std of the purged out-of-fold residuals (the calibration scale)."""
+        if self._oof_residuals is None:
+            return 0.10
+        return float(np.std(self._oof_residuals))
+
     def get_feature_importances(self) -> Optional[Dict[str, float]]:
         if self._feature_importances is None or not self.feature_names:
             return None
