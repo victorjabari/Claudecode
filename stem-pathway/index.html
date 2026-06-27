@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STEM Pathway — map your studies to your career</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <h1>STEM&nbsp;Pathway · <span id="program-name">Industriell ekonomi</span></h1>
+      <p class="tag">
+        For <strong id="program-full">Civilingenjör i industriell ekonomi</strong>
+        students at <strong id="program-uni">Umeå University</strong>. Tick the
+        courses you've finished to see <strong>what</strong> careers open up and
+        <strong>why</strong>, then get course recommendations that explain
+        <strong>how</strong> they move your options forward.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <!-- LEFT: inputs -->
+    <aside class="panel inputs">
+      <section class="step">
+        <h2><span class="num">1</span> Your specialization</h2>
+        <select id="field-select" aria-label="Specialization track">
+          <option value="" disabled selected>Choose where you're heading…</option>
+        </select>
+        <p id="field-blurb" class="muted"></p>
+      </section>
+
+      <section class="step" id="courses-step" hidden>
+        <h2><span class="num">2</span> Courses you've completed</h2>
+        <p class="muted">Tick everything you've passed. Results update as you go.</p>
+        <div class="course-actions">
+          <button type="button" id="select-all" class="link-btn">Select all</button>
+          <button type="button" id="clear-all" class="link-btn">Clear</button>
+        </div>
+        <div id="course-list"></div>
+      </section>
+    </aside>
+
+    <!-- RIGHT: results -->
+    <section class="panel results">
+      <div id="empty-state" class="empty">
+        <p>👋 Pick your field of study to begin.</p>
+      </div>
+
+      <div id="results" hidden>
+        <section class="result-block">
+          <h2>Your skills so far</h2>
+          <p id="skills-summary" class="muted"></p>
+          <div id="skills-chips" class="chips"></div>
+        </section>
+
+        <section class="result-block">
+          <h2>What careers fit you — and why</h2>
+          <p class="muted">
+            Ranked by how much of each role your completed courses already cover.
+            Open a card to see which of your courses feed it and what's still missing.
+          </p>
+          <div id="careers-list"></div>
+        </section>
+
+        <section class="result-block">
+          <h2>Recommended next courses</h2>
+          <p class="muted">
+            Chosen for how much they raise your career coverage — each one says
+            <em>why</em> (which careers) and <em>how</em> (which skills it adds).
+          </p>
+          <div id="recs-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer wrap">
+    <p id="footer-note">
+      MVP · rule-based recommendations over seed data for one Umeå University
+      program. Roadmap: parse the official Umeå syllabuses (utbildningsplan /
+      kursplaner) for every faculty + AI-driven job &amp; internship matching.
+    </p>
+  </footer>
+
+  <!-- Plain script tags: no build step, opens straight from the filesystem. -->
+  <script src="data.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+:root {
+  --umu-blue: #0057a4;      /* Umeå University blue */
+  --umu-blue-dark: #003e75;
+  --accent: #00a0b0;
+  --bg: #f4f6f9;
+  --card: #ffffff;
+  --ink: #1a2230;
+  --muted: #5b6675;
+  --line: #e2e7ee;
+  --good: #1f9d55;
+  --good-bg: #e7f6ee;
+  --warn: #b06a00;
+  --shadow: 0 1px 3px rgba(16, 30, 54, 0.08), 0 6px 18px rgba(16, 30, 54, 0.06);
+  --radius: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ink);
+  background: var(--bg);
+  line-height: 1.5;
+}
+
+.wrap { width: min(1100px, 92vw); margin: 0 auto; }
+
+/* Header */
+.site-header {
+  background: linear-gradient(135deg, var(--umu-blue), var(--umu-blue-dark));
+  color: #fff;
+  padding: 2.2rem 0 2rem;
+}
+.site-header h1 { margin: 0 0 .4rem; font-size: 2rem; letter-spacing: -0.5px; }
+.site-header .tag { margin: 0; max-width: 60ch; color: #dce8f5; }
+.site-header .tag strong { color: #fff; }
+
+/* Layout */
+.layout {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+  margin-top: -1.2rem;
+  padding-bottom: 3rem;
+}
+@media (max-width: 860px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 1.25rem 1.25rem 1.4rem;
+}
+.inputs { position: sticky; top: 1rem; }
+@media (max-width: 860px) { .inputs { position: static; } }
+
+.step + .step { margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px solid var(--line); }
+.step h2 {
+  font-size: 1.05rem; margin: 0 0 .6rem; display: flex; align-items: center; gap: .55rem;
+}
+.num {
+  display: inline-grid; place-items: center;
+  width: 1.5rem; height: 1.5rem; border-radius: 50%;
+  background: var(--umu-blue); color: #fff; font-size: .85rem; font-weight: 700;
+}
+
+select {
+  width: 100%; padding: .6rem .7rem; font-size: 1rem;
+  border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink);
+}
+.muted { color: var(--muted); font-size: .9rem; }
+
+/* Course checklist */
+.course-actions { display: flex; gap: 1rem; margin: .4rem 0 .8rem; }
+.link-btn {
+  background: none; border: none; color: var(--umu-blue); cursor: pointer;
+  font-size: .85rem; padding: 0; text-decoration: underline;
+}
+.year-group { margin-bottom: 1rem; }
+.year-group h3 {
+  font-size: .8rem; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--muted); margin: .2rem 0 .5rem;
+}
+.course {
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .45rem .55rem; border-radius: 8px; cursor: pointer;
+}
+.course:hover { background: #f6f9fc; }
+.course input { margin-top: .25rem; flex: none; width: 1rem; height: 1rem; }
+.course .c-name { font-size: .92rem; }
+.course .c-en { display: block; color: var(--muted); font-size: .78rem; }
+.course .c-hp { color: var(--muted); font-size: .78rem; }
+
+/* Results */
+.empty { text-align: center; color: var(--muted); padding: 3rem 1rem; }
+.result-block + .result-block { margin-top: 1.8rem; padding-top: 1.4rem; border-top: 1px solid var(--line); }
+.result-block > h2 { font-size: 1.2rem; margin: 0 0 .3rem; }
+
+/* Skill chips */
+.chips { display: flex; flex-wrap: wrap; gap: .4rem; margin-top: .6rem; }
+.chip {
+  background: #eef4fb; color: var(--umu-blue-dark);
+  border: 1px solid #d6e4f3; border-radius: 999px;
+  padding: .25rem .65rem; font-size: .82rem; white-space: nowrap;
+}
+
+/* Career cards */
+.career {
+  border: 1px solid var(--line); border-radius: var(--radius);
+  margin-top: .9rem; overflow: hidden; background: #fff;
+}
+.career > summary {
+  list-style: none; cursor: pointer; padding: .9rem 1rem;
+  display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; align-items: center;
+}
+.career > summary::-webkit-details-marker { display: none; }
+.career .c-title { font-weight: 700; font-size: 1.02rem; }
+.career .c-summary { grid-column: 1 / 2; color: var(--muted); font-size: .88rem; }
+.career .c-match { text-align: right; font-size: .8rem; color: var(--muted); }
+.career .c-match b { display: block; font-size: 1.15rem; color: var(--ink); }
+
+.bar { grid-column: 1 / -1; height: 7px; background: #eef1f5; border-radius: 999px; overflow: hidden; }
+.bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--accent), var(--umu-blue)); }
+
+.career .body { padding: 0 1rem 1rem; border-top: 1px solid var(--line); }
+.career .body h4 {
+  font-size: .82rem; text-transform: uppercase; letter-spacing: .03em;
+  color: var(--muted); margin: 1rem 0 .4rem;
+}
+.career .meta { font-size: .86rem; margin: .5rem 0; }
+.career .meta b { color: var(--ink); }
+
+ul.reasons { list-style: none; padding: 0; margin: 0; display: grid; gap: .4rem; }
+ul.reasons li {
+  font-size: .88rem; padding: .5rem .65rem; border-radius: 8px;
+  background: var(--good-bg); border: 1px solid #cdeadb;
+}
+ul.reasons li.gap { background: #fff7ea; border-color: #f2e0bd; }
+ul.reasons li .why-skill { font-weight: 600; }
+ul.reasons li .via { color: var(--muted); font-size: .82rem; }
+
+/* Recommendation cards */
+.rec {
+  border: 1px solid var(--line); border-left: 4px solid var(--accent);
+  border-radius: 10px; padding: .9rem 1rem; margin-top: .8rem; background: #fff;
+}
+.rec .r-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.rec .r-title { font-weight: 700; }
+.rec .r-en { color: var(--muted); font-size: .8rem; font-weight: 400; }
+.rec .r-gain {
+  flex: none; font-size: .78rem; font-weight: 700; color: var(--good);
+  background: var(--good-bg); border-radius: 999px; padding: .15rem .55rem;
+}
+.rec .r-line { font-size: .88rem; margin: .5rem 0 0; }
+.rec .r-line .lbl { font-weight: 700; color: var(--umu-blue-dark); }
+.rec .r-careers { font-size: .85rem; color: var(--muted); margin-top: .35rem; }
+.rec .r-careers .up { color: var(--good); font-weight: 600; }
+
+.note { color: var(--muted); font-size: .85rem; margin-top: .8rem; }
+
+/* Footer */
+.site-footer { padding: 1.5rem 0 2.5rem; color: var(--muted); font-size: .85rem; }
+.site-footer a { color: var(--umu-blue); }
