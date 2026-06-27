@@ -33,6 +33,7 @@ body {
   padding: 2.2rem 0 2rem;
 }
 .site-header h1 { margin: 0 0 .4rem; font-size: 2rem; letter-spacing: -0.5px; }
+.site-header .brand-sub { font-size: 1.05rem; font-weight: 400; color: #cfe0f1; letter-spacing: 0; }
 .site-header .tag { margin: 0; max-width: 60ch; color: #dce8f5; }
 .site-header .tag strong { color: #fff; }
 

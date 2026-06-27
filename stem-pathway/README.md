@@ -1,4 +1,7 @@
-# STEM Pathway — Industriell ekonomi (Umeå University)
+# Spår — from courses to careers
+
+> **Spår** is Swedish for *track / path* — both the specialization **track** you
+> choose and the career **path** it leads to. (Folder kept as `stem-pathway/`.)
 
 An MVP that maps **what you study → what careers open up → why → and which
 courses to take next**. Built around one program to start:
