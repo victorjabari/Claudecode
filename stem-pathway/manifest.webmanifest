@@ -1,0 +1,13 @@
+{
+  "name": "Spår — from courses to careers",
+  "short_name": "Spår",
+  "description": "See what careers your courses open up, why they matter, and which course to take next.",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#f6f3ec",
+  "theme_color": "#0057a4",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

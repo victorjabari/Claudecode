@@ -114,3 +114,36 @@ test("recommendCourses respects the limit", () => {
   const recs = engine.recommendCourses("log", [], { limit: 3 });
   assert.ok(recs.length <= 3, "should respect the limit");
 });
+
+// --- Catalog contract: the shape the future syllabus-ingest pipeline must keep. ---
+
+test("catalog contract: every course is well-formed", () => {
+  const trackIds = new Set(DATA.tracks.map((t) => t.id));
+  DATA.courses.forEach((c) => {
+    assert.match(c.id, /^[a-z0-9_]+$/, `course id "${c.id}" must be a slug`);
+    assert.ok(
+      Number.isInteger(c.year) && c.year >= 1 && c.year <= DATA.program.years,
+      `course ${c.id} has invalid year ${c.year}`
+    );
+    assert.ok(typeof c.hp === "number" && c.hp > 0, `course ${c.id} has invalid hp`);
+    assert.ok(Array.isArray(c.tracks) && c.tracks.length > 0, `course ${c.id} has no tracks`);
+    c.tracks.forEach((t) =>
+      assert.ok(t === "core" || trackIds.has(t), `course ${c.id} references unknown track "${t}"`)
+    );
+    assert.ok(Array.isArray(c.skills) && c.skills.length > 0, `course ${c.id} grants no skills`);
+    assert.ok(c.name && c.nameEn, `course ${c.id} must carry Swedish + English names`);
+  });
+});
+
+test("catalog contract: syllabus links, when present, are official https URLs", () => {
+  assert.match(DATA.program.syllabusUrl, /^https:\/\//, "program syllabusUrl must be https");
+  DATA.courses.forEach((c) => {
+    if (c.syllabus) {
+      assert.match(
+        c.syllabus.url,
+        /^https:\/\//,
+        `course ${c.id} syllabus.url must be https — never guess or fabricate kursplan links`
+      );
+    }
+  });
+});

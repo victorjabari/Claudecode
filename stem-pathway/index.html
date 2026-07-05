@@ -3,19 +3,26 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Spår — from courses to careers (Umeå · Industriell ekonomi)</title>
+  <meta name="description" content="Spår — see what careers your courses open up, why they matter, and which course to take next. Built for Civilingenjör i industriell ekonomi at Umeå University." />
+  <meta name="theme-color" content="#0057a4" />
+  <title>Spår — from courses to careers</title>
   <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
 </head>
 <body>
   <header class="site-header">
     <div class="wrap">
-      <h1>Spår <span class="brand-sub">— from courses to careers</span></h1>
+      <p class="masthead">
+        <span id="program-uni">Umeå University</span> ·
+        <span id="program-full">Civilingenjör i industriell ekonomi</span> ·
+        <span id="program-hp">300 hp</span>
+      </p>
+      <h1>Spår<span class="dot">.</span></h1>
       <p class="tag">
-        For <strong id="program-full">Civilingenjör i industriell ekonomi</strong>
-        students at <strong id="program-uni">Umeå University</strong>. Tick the
-        courses you've finished to see <strong>what</strong> careers open up and
-        <strong>why</strong>, then get course recommendations that explain
-        <strong>how</strong> they move your options forward.
+        From courses to careers. Tick off what you've passed and see
+        <mark>what</mark> opens up, <mark>why</mark> your courses matter, and
+        <mark>how</mark> each next course moves you forward.
       </p>
     </div>
   </header>
@@ -24,7 +31,7 @@
     <!-- LEFT: inputs -->
     <aside class="panel inputs">
       <section class="step">
-        <h2><span class="num">1</span> Your specialization</h2>
+        <h2><span class="num">01</span> Your specialization</h2>
         <select id="field-select" aria-label="Specialization track">
           <option value="" disabled selected>Choose where you're heading…</option>
         </select>
@@ -32,8 +39,8 @@
       </section>
 
       <section class="step" id="courses-step" hidden>
-        <h2><span class="num">2</span> Courses you've completed</h2>
-        <p class="muted">Tick everything you've passed. Results update as you go.</p>
+        <h2><span class="num">02</span> Courses you've completed</h2>
+        <p class="muted">Tick everything you've passed. Results update as you go — and are saved on this device.</p>
         <div class="course-actions">
           <button type="button" id="select-all" class="link-btn">Select all</button>
           <button type="button" id="clear-all" class="link-btn">Clear</button>
@@ -45,30 +52,30 @@
     <!-- RIGHT: results -->
     <section class="panel results">
       <div id="empty-state" class="empty">
-        <p>👋 Pick your field of study to begin.</p>
+        <p>Pick your specialization to begin — the line starts there.</p>
       </div>
 
       <div id="results" hidden>
         <section class="result-block">
-          <h2>Your skills so far</h2>
+          <h2>What you carry</h2>
           <p id="skills-summary" class="muted"></p>
           <div id="skills-chips" class="chips"></div>
         </section>
 
         <section class="result-block">
-          <h2>What careers fit you — and why</h2>
+          <h2>Destinations — what fits, and why</h2>
           <p class="muted">
             Ranked by how much of each role your completed courses already cover.
-            Open a card to see which of your courses feed it and what's still missing.
+            Open a row to see which of your courses feed it and what's still missing.
           </p>
           <div id="careers-list"></div>
         </section>
 
         <section class="result-block">
-          <h2>Recommended next courses</h2>
+          <h2>Next stations — courses worth taking</h2>
           <p class="muted">
-            Chosen for how much they raise your career coverage — each one says
-            <em>why</em> (which careers) and <em>how</em> (which skills it adds).
+            Ranked by how much each course raises your career coverage — every one
+            says <em>why</em> (which careers) and <em>how</em> (which skills it adds).
           </p>
           <div id="recs-list"></div>
         </section>
@@ -78,9 +85,10 @@
 
   <footer class="site-footer wrap">
     <p id="footer-note">
-      MVP · rule-based recommendations over seed data for one Umeå University
-      program. Roadmap: parse the official Umeå syllabuses (utbildningsplan /
-      kursplaner) for every faculty + AI-driven job &amp; internship matching.
+      MVP · rule-based over seed data for one Umeå University program ·
+      installable as an app from your browser · roadmap: official syllabuses
+      (kursplaner) per faculty → more universities → every education, paired with
+      AI job &amp; internship matching.
     </p>
   </footer>
 
@@ -88,5 +96,11 @@
   <script src="data.js"></script>
   <script src="engine.js"></script>
   <script src="app.js"></script>
+  <script>
+    // Offline/installable app shell. file:// has no service workers — guard it.
+    if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  </script>
 </body>
 </html>

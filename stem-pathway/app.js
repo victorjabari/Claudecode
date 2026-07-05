@@ -19,9 +19,23 @@
   const careersList = $("careers-list");
   const recsList = $("recs-list");
 
-  // --- state ---
+  // --- state (persisted locally so the site behaves like an app) ---
   let trackId = "";
   const completed = new Set();
+
+  const STORE_KEY = "spar.v1";
+  function saveState() {
+    try {
+      localStorage.setItem(STORE_KEY, JSON.stringify({ trackId, completed: [...completed] }));
+    } catch (_) { /* private mode / storage denied — run stateless */ }
+  }
+  function loadState() {
+    try {
+      return JSON.parse(localStorage.getItem(STORE_KEY));
+    } catch (_) {
+      return null;
+    }
+  }
 
   // --- helpers ---
   const pct = (x) => Math.round(x * 100);
@@ -37,6 +51,7 @@
     const p = DATA.program;
     $("program-full").textContent = p.name;
     $("program-uni").textContent = p.university.split(" (")[0];
+    $("program-hp").textContent = p.credits;
   }
 
   // --- step 1: track dropdown ---
@@ -69,12 +84,18 @@
           cb.checked = completed.has(c.id);
           cb.addEventListener("change", () => {
             cb.checked ? completed.add(c.id) : completed.delete(c.id);
+            saveState();
             renderResults();
           });
+          // Official kursplan link, rendered whenever the catalog carries one.
+          // (Anchors inside a <label> don't toggle the checkbox — spec behaviour.)
+          const syll = c.syllabus && c.syllabus.url
+            ? ` · <a class="c-syll" href="${c.syllabus.url}" target="_blank" rel="noopener">kursplan ↗</a>`
+            : "";
           const text = el("span");
           text.innerHTML =
             `<span class="c-name">${c.name}</span>` +
-            `<span class="c-en">${c.nameEn} · <span class="c-hp">${c.hp} hp</span></span>`;
+            `<span class="c-en">${c.nameEn} · <span class="c-hp">${c.hp} hp</span>${syll}</span>`;
           label.appendChild(cb);
           label.appendChild(text);
           group.appendChild(label);
@@ -191,34 +212,42 @@
         `<span class="r-title">${c.name} <span class="r-en">(${c.nameEn}, Year ${c.year})</span></span>` +
         `<span class="r-gain">+${pct(r.totalGain)} pts</span>` +
         `</div>` +
-        `<p class="r-line"><span class="lbl">How it helps:</span> adds ${skillsTxt}.</p>` +
-        `<p class="r-careers"><span class="lbl" style="color:var(--umu-blue-dark)">Why take it:</span> raises ${careersTxt}</p>`;
+        `<p class="r-line"><span class="lbl">How it helps</span> adds ${skillsTxt}.</p>` +
+        `<p class="r-careers"><span class="lbl">Why take it</span> raises ${careersTxt}</p>`;
       recsList.appendChild(card);
     });
   }
 
-  // --- events ---
-  trackSelect.addEventListener("change", () => {
-    trackId = trackSelect.value;
+  // --- track selection (shared by the change event and state restore) ---
+  function applyTrack(id) {
+    trackId = id;
     const track = DATA.tracks.find((t) => t.id === trackId);
-    trackBlurb.textContent = track ? track.blurb : "";
+    if (!track) return;
+    trackSelect.value = trackId;
+    trackBlurb.textContent = track.blurb;
     // keep only completed courses that still exist in this track's catalog
     const valid = new Set(engine.coursesForField(trackId).map((c) => c.id));
     [...completed].forEach((id) => valid.has(id) || completed.delete(id));
     coursesStep.hidden = false;
     emptyState.hidden = true;
     results.hidden = false;
+    saveState();
     renderCourses();
     renderResults();
-  });
+  }
+
+  // --- events ---
+  trackSelect.addEventListener("change", () => applyTrack(trackSelect.value));
 
   $("select-all").addEventListener("click", () => {
     engine.coursesForField(trackId).forEach((c) => completed.add(c.id));
+    saveState();
     renderCourses();
     renderResults();
   });
   $("clear-all").addEventListener("click", () => {
     completed.clear();
+    saveState();
     renderCourses();
     renderResults();
   });
@@ -226,4 +255,9 @@
   // --- init ---
   fillProgram();
   fillTracks();
+  const saved = loadState();
+  if (saved && saved.trackId) {
+    (saved.completed || []).forEach((id) => completed.add(id));
+    applyTrack(saved.trackId);
+  }
 })();

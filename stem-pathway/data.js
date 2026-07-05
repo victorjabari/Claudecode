@@ -38,6 +38,10 @@ const PROGRAM = {
   faculty: "Faculty of Science and Technology (Teknisk-naturvetenskaplig fakultet)",
   credits: "300 hp",
   years: 5,
+  // Official program page (utbildningsplan). Per-course kursplan links go in
+  // each course's optional `syllabus: { url }` slot — see the note below COURSES.
+  syllabusUrl:
+    "https://www.umu.se/utbildning/program/civilingenjorsprogrammet-i-industriell-ekonomi/",
   blurb:
     "Sweden's broad civilingenjör degree that fuses engineering mathematics, " +
     "computing and optimization with economics, finance and leadership. " +
@@ -123,6 +127,14 @@ const SKILLS = {
  * Courses. `year` 1–5, `hp` = Swedish higher-ed credits (60 hp = one year).
  * `tracks`: ["core"] for the shared years 1–3, or the specialization id for
  * years 4–5 courses. A "core" course is offered to every track.
+ *
+ * CATALOG CONTRACT (what the future syllabus-ingest pipeline writes):
+ *   Each course MAY carry `syllabus: { url: "https://..." }` pointing at its
+ *   official kursplan; the UI renders it as a link automatically and the tests
+ *   enforce https. None are set yet — we only link pages we have verified, and
+ *   per-course kursplan URLs haven't been collected. Filling this field (from
+ *   Umeå first, then other universities, then beyond STEM) is a data drop,
+ *   not a code change.
  */
 const COURSES = [
   // ---------- Year 1 (core) ----------
