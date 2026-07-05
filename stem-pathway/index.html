@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Spår — see what careers your courses open up, why they matter, and which course to take next. Built for Civilingenjör i industriell ekonomi at Umeå University." />
+  <meta name="theme-color" content="#0057a4" />
+  <title>Spår — from courses to careers</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <p class="masthead">
+        <span id="program-uni">Umeå University</span> ·
+        <span id="program-full">Civilingenjör i industriell ekonomi</span> ·
+        <span id="program-hp">300 hp</span>
+      </p>
+      <h1>Spår<span class="dot">.</span></h1>
+      <p class="tag">
+        From courses to careers. Tick off what you've passed and see
+        <mark>what</mark> opens up, <mark>why</mark> your courses matter, and
+        <mark>how</mark> each next course moves you forward.
+      </p>
+    </div>
+  </header>
+
+  <main class="wrap layout">
+    <!-- LEFT: inputs -->
+    <aside class="panel inputs">
+      <section class="step">
+        <h2><span class="num">01</span> Your specialization</h2>
+        <select id="field-select" aria-label="Specialization track">
+          <option value="" disabled selected>Choose where you're heading…</option>
+        </select>
+        <p id="field-blurb" class="muted"></p>
+      </section>
+
+      <section class="step" id="courses-step" hidden>
+        <h2><span class="num">02</span> Courses you've completed</h2>
+        <p class="muted">Tick everything you've passed. Results update as you go — and are saved on this device.</p>
+        <div class="course-actions">
+          <button type="button" id="select-all" class="link-btn">Select all</button>
+          <button type="button" id="clear-all" class="link-btn">Clear</button>
+        </div>
+        <div id="course-list"></div>
+      </section>
+    </aside>
+
+    <!-- RIGHT: results -->
+    <section class="panel results">
+      <div id="empty-state" class="empty">
+        <p>Pick your specialization to begin — the line starts there.</p>
+      </div>
+
+      <div id="results" hidden>
+        <section class="result-block">
+          <h2>What you carry</h2>
+          <p id="skills-summary" class="muted"></p>
+          <div id="skills-chips" class="chips"></div>
+        </section>
+
+        <section class="result-block">
+          <h2>Destinations — what fits, and why</h2>
+          <p class="muted">
+            Ranked by how much of each role your completed courses already cover.
+            Open a row to see which of your courses feed it and what's still missing.
+          </p>
+          <div id="careers-list"></div>
+        </section>
+
+        <section class="result-block">
+          <h2>Next stations — courses worth taking</h2>
+          <p class="muted">
+            Ranked by how much each course raises your career coverage — every one
+            says <em>why</em> (which careers) and <em>how</em> (which skills it adds).
+          </p>
+          <div id="recs-list"></div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer wrap">
+    <p id="footer-note">
+      MVP · rule-based over seed data for one Umeå University program ·
+      installable as an app from your browser · roadmap: official syllabuses
+      (kursplaner) per faculty → more universities → every education, paired with
+      AI job &amp; internship matching.
+    </p>
+  </footer>
+
+  <!-- Plain script tags: no build step, opens straight from the filesystem. -->
+  <script src="data.js"></script>
+  <script src="engine.js"></script>
+  <script src="app.js"></script>
+  <script>
+    // Offline/installable app shell. file:// has no service workers — guard it.
+    if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,349 @@
+/*
+ * Spår — "paper & rail" design system.
+ *
+ * Deliberately editorial, not app-template: warm paper ground, near-black ink,
+ * hairline rules instead of card shadows, serif display type, mono for numbers,
+ * and one brand motif carried everywhere — the rail line (Spår = track): the
+ * course list runs on a rail with year "stations", careers are destinations,
+ * recommendations are numbered next stations. Zero webfonts, zero images,
+ * zero external requests.
+ */
+:root {
+  --paper: #f6f3ec;
+  --card: #fdfbf6;
+  --ink: #161310;
+  --muted: #6f6a5d;
+  --line: #d9d2c0;
+  --line-soft: #e8e2d2;
+  --blue: #0057a4;        /* Umeå blue — used sparingly, so it means something */
+  --blue-deep: #003e75;
+  --mark: #ffe45c;        /* marker-pen highlight */
+  --good: #1c7c4d;
+  --warn: #8a5a00;
+  --serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Times New Roman", serif;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--sans);
+  color: var(--ink);
+  background: var(--paper);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+.wrap { width: min(1120px, 92vw); margin: 0 auto; }
+
+::selection { background: var(--mark); color: var(--ink); }
+
+:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; border-radius: 2px; }
+
+mark {
+  background: linear-gradient(180deg, transparent 58%, var(--mark) 58%);
+  color: inherit;
+  font-weight: 650;
+  padding: 0 .08em;
+}
+
+/* ---------- Masthead ---------- */
+.site-header { padding: 2.6rem 0 1.6rem; }
+.site-header .wrap { border-bottom: 1px solid var(--ink); padding-bottom: 1.6rem; }
+
+.masthead {
+  margin: 0 0 1.2rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  color: var(--muted);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: .8rem;
+}
+
+.site-header h1 {
+  margin: 0 0 .5rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: clamp(3rem, 7vw, 4.6rem);
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+}
+.site-header h1 .dot { color: var(--blue); }
+
+.site-header .tag {
+  margin: 0;
+  max-width: 58ch;
+  font-size: 1.06rem;
+  color: var(--ink);
+}
+
+/* ---------- Layout ---------- */
+.layout {
+  display: grid;
+  grid-template-columns: 370px 1fr;
+  gap: 0 3rem;
+  align-items: start;
+  padding: 2rem 0 4rem;
+}
+@media (max-width: 880px) {
+  .layout { grid-template-columns: 1fr; }
+}
+
+.panel { background: transparent; }
+.inputs {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 2rem);
+  overflow-y: auto;
+  border-right: 1px solid var(--line);
+  padding-right: 2.4rem;
+}
+@media (max-width: 880px) {
+  .inputs {
+    position: static; max-height: none; overflow: visible;
+    border-right: 0; border-bottom: 1px solid var(--line);
+    padding-right: 0; padding-bottom: 2rem; margin-bottom: 2rem;
+  }
+}
+
+/* ---------- Steps (left rail) ---------- */
+.step + .step { margin-top: 2rem; }
+.step h2 {
+  margin: 0 0 .7rem;
+  font-size: .8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  display: flex;
+  align-items: baseline;
+  gap: .6rem;
+}
+.num { font-family: var(--mono); font-weight: 700; color: var(--blue); }
+
+select {
+  width: 100%;
+  padding: .65rem .7rem;
+  font: inherit;
+  font-size: .95rem;
+  color: var(--ink);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.muted { color: var(--muted); font-size: .88rem; }
+
+.course-actions { display: flex; gap: 1.2rem; margin: .5rem 0 1.1rem; }
+.link-btn {
+  background: none; border: none; padding: 0; cursor: pointer;
+  font-family: var(--mono); font-size: .74rem; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--blue); text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.link-btn:hover { color: var(--blue-deep); }
+
+/* The rail: year groups run on a track line with station dots. */
+.year-group { position: relative; border-left: 2px solid var(--blue); padding-left: 1.15rem; padding-bottom: 1.1rem; }
+.year-group:last-child { padding-bottom: .2rem; }
+.year-group h3 {
+  position: relative;
+  margin: 0 0 .45rem;
+  font-family: var(--mono);
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  color: var(--blue-deep);
+}
+.year-group h3::before {
+  content: "";
+  position: absolute;
+  left: calc(-1.15rem - 7px);
+  top: .18rem;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--paper);
+  border: 2px solid var(--blue);
+}
+
+.course {
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .4rem .5rem .4rem .35rem;
+  margin-left: -.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.course:hover { background: rgba(0, 87, 164, .06); }
+.course input {
+  margin-top: .3rem; flex: none;
+  width: .95rem; height: .95rem;
+  accent-color: var(--blue);
+}
+.course .c-name { font-size: .92rem; }
+.course input:checked + span .c-name {
+  text-decoration: line-through;
+  text-decoration-color: rgba(0, 87, 164, .45);
+  text-decoration-thickness: 1.5px;
+}
+.course .c-en { display: block; color: var(--muted); font-size: .76rem; }
+.course .c-hp { font-family: var(--mono); font-size: .72rem; }
+.c-syll { color: var(--blue); font-size: .74rem; text-decoration: underline; text-underline-offset: 2px; }
+
+/* ---------- Results ---------- */
+.empty {
+  padding: 4rem 1rem;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.15rem;
+  color: var(--muted);
+}
+
+#results { counter-reset: blk; }
+.result-block + .result-block { margin-top: 2.6rem; }
+.result-block > h2 {
+  counter-increment: blk;
+  margin: 0 0 .35rem;
+  font-family: var(--serif);
+  font-weight: 600;
+  font-size: 1.65rem;
+  letter-spacing: -0.01em;
+}
+.result-block > h2::before {
+  content: counter(blk, upper-roman) ".";
+  color: var(--blue);
+  margin-right: .5rem;
+}
+
+/* Skill chips */
+.chips { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: .7rem; }
+.chip {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: .22rem .55rem;
+  font-size: .8rem;
+  white-space: nowrap;
+}
+
+/* Career rows — destinations on the line. */
+#careers-list { margin-top: .9rem; border-bottom: 1px solid var(--line); }
+.career { border-top: 1px solid var(--line); background: transparent; }
+.career > summary {
+  list-style: none;
+  cursor: pointer;
+  padding: 1.05rem 0 .95rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .25rem 1.2rem;
+  align-items: baseline;
+}
+.career > summary::-webkit-details-marker { display: none; }
+.career .c-title { font-family: var(--serif); font-weight: 600; font-size: 1.28rem; }
+.career .c-title::after {
+  content: "+";
+  font-family: var(--mono);
+  font-weight: 400;
+  color: var(--muted);
+  margin-left: .55rem;
+  font-size: .9rem;
+}
+.career[open] .c-title::after { content: "−"; }
+.career .c-summary { grid-column: 1 / 2; color: var(--muted); font-size: .88rem; }
+.career .c-match {
+  grid-row: 1 / 3; grid-column: 2;
+  text-align: right;
+  font-family: var(--mono);
+  font-size: .68rem;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--muted);
+}
+.career .c-match b { display: block; font-size: 1.7rem; letter-spacing: 0; color: var(--ink); line-height: 1.1; }
+
+.bar {
+  grid-column: 1 / -1;
+  height: 3px;
+  margin-top: .55rem;
+  background: var(--line-soft);
+}
+.bar > span { display: block; height: 100%; background: var(--blue); }
+
+.career .body { padding: .2rem 0 1.3rem; }
+.career .body h4 {
+  margin: 1.2rem 0 .5rem;
+  font-size: .72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .12em;
+  color: var(--muted);
+}
+.career .meta { font-size: .88rem; margin: .35rem 0; }
+.career .meta b { font-weight: 650; }
+
+ul.reasons { list-style: none; padding: 0; margin: 0; display: grid; gap: .45rem; }
+ul.reasons li {
+  font-size: .88rem;
+  padding: .1rem 0 .1rem .75rem;
+  border-left: 3px solid var(--good);
+}
+ul.reasons li.gap { border-left-color: var(--warn); }
+ul.reasons li .why-skill { font-weight: 650; }
+ul.reasons li .via { color: var(--muted); font-size: .8rem; }
+
+/* Recommendations — "next stations", numbered like a timetable. */
+#recs-list { counter-reset: rec; margin-top: .9rem; border-bottom: 1px solid var(--line); }
+.rec {
+  counter-increment: rec;
+  position: relative;
+  border-top: 1px solid var(--line);
+  padding: 1.05rem 0 1.1rem 3.1rem;
+  background: transparent;
+}
+.rec::before {
+  content: counter(rec, decimal-leading-zero);
+  position: absolute;
+  left: 0; top: 1.15rem;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--blue);
+}
+.rec .r-head { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.rec .r-title { font-family: var(--serif); font-weight: 600; font-size: 1.12rem; }
+.rec .r-en { color: var(--muted); font-size: .78rem; font-family: var(--sans); font-weight: 400; }
+.rec .r-gain {
+  flex: none;
+  font-family: var(--mono);
+  font-size: .78rem;
+  font-weight: 700;
+  color: var(--good);
+}
+.rec .r-line { font-size: .88rem; margin: .45rem 0 0; }
+.rec .lbl {
+  font-family: var(--mono);
+  font-size: .68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .1em;
+  color: var(--blue-deep);
+  margin-right: .25rem;
+}
+.rec .r-careers { font-size: .86rem; color: var(--muted); margin-top: .3rem; }
+.rec .r-careers .up { font-family: var(--mono); font-size: .78rem; color: var(--good); font-weight: 600; }
+
+.note { color: var(--muted); font-size: .85rem; margin-top: .8rem; }
+
+/* ---------- Footer ---------- */
+.site-footer {
+  border-top: 1px solid var(--ink);
+  padding: 1.2rem 0 3rem;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: .72rem;
+  letter-spacing: .02em;
+}
+.site-footer a { color: var(--blue); }
